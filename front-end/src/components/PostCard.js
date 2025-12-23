@@ -1,11 +1,12 @@
 import { useState } from 'react';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const PostCard = ({ post, token }) => {
   const [liked, setLiked] = useState(false);
 
   const toggleLike = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/posts/${post._id}/like`, {
+      const res = await fetch(`${API_URL}/api/posts/${post._id}/like`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

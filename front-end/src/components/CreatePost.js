@@ -1,4 +1,5 @@
 import { useState } from 'react';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const CreatePost = ({ token, onPost }) => {
   const [caption, setCaption] = useState('');
@@ -7,7 +8,7 @@ const CreatePost = ({ token, onPost }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:5000/api/posts', {
+      await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

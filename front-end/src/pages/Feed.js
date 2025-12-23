@@ -3,6 +3,8 @@ import PostCard from '../components/PostCard';
 import CreatePost from '../components/CreatePost';
 import Stories from '../components/Stories';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Feed = ({ token }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,11 @@ const Feed = ({ token }) => {
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5000/api/posts');
+      const res = await fetch(`${API_URL}/api/posts`, {
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : undefined,
+      });
       const data = await res.json();
       setPosts(data);
     } catch (err) {
@@ -20,14 +26,29 @@ const Feed = ({ token }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
-  // Load suggested users
+  // Load suggested users (static)
   useEffect(() => {
     setSuggestedUsers([
-      { id: 1, name: 'john_doe', profilePic: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
-      { id: 2, name: 'jane_smith', profilePic: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150' },
-      { id: 3, name: 'mike_wilson', profilePic: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' }
+      {
+        id: 1,
+        name: 'john_doe',
+        profilePic:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+      },
+      {
+        id: 2,
+        name: 'jane_smith',
+        profilePic:
+          'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
+      },
+      {
+        id: 3,
+        name: 'mike_wilson',
+        profilePic:
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+      },
     ]);
   }, []);
 
@@ -61,8 +82,11 @@ const Feed = ({ token }) => {
           </div>
         </div>
         <div className="nav-right">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" 
-               alt="Profile" className="profile-pic-nav" />
+          <img
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face"
+            alt="Profile"
+            className="profile-pic-nav"
+          />
         </div>
       </nav>
 
@@ -70,19 +94,25 @@ const Feed = ({ token }) => {
         {/* Left Sidebar - Stories */}
         <div className="feed-sidebar-left">
           <Stories />
-          
+
           {/* Suggested Accounts */}
           <div className="suggested-accounts">
             <div className="suggested-header">
               <span>Suggested for you</span>
               <button className="see-all-btn">See all</button>
             </div>
-            {suggestedUsers.map(user => (
+            {suggestedUsers.map((user) => (
               <div key={user.id} className="suggested-user">
-                <img src={user.profilePic} alt={user.name} className="suggested-avatar" />
+                <img
+                  src={user.profilePic}
+                  alt={user.name}
+                  className="suggested-avatar"
+                />
                 <div className="suggested-info">
                   <span className="suggested-name">{user.name}</span>
-                  <span className="suggested-desc">Followed by user123 + 2 more</span>
+                  <span className="suggested-desc">
+                    Followed by user123 + 2 more
+                  </span>
                 </div>
                 <button className="follow-btn">Follow</button>
               </div>
@@ -96,13 +126,21 @@ const Feed = ({ token }) => {
           <div className="posts-grid">
             {posts.length === 0 ? (
               <div className="empty-feed">
-                <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200" alt="No posts" />
+                <img
+                  src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200"
+                  alt="No posts"
+                />
                 <h3>Nothing to see here yet</h3>
                 <p>Follow people to start seeing their posts</p>
               </div>
             ) : (
-              posts.map(post => (
-                <PostCard key={post._id} post={post} token={token} onLike={fetchPosts} />
+              posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  token={token}
+                  onLike={fetchPosts}
+                />
               ))
             )}
           </div>
@@ -111,8 +149,11 @@ const Feed = ({ token }) => {
         {/* Right Sidebar */}
         <aside className="feed-sidebar-right">
           <div className="user-profile-card">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" 
-                 alt="Profile" className="user-avatar-large" />
+            <img
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face"
+              alt="Profile"
+              className="user-avatar-large"
+            />
             <div className="user-info">
               <span className="user-fullname">John Doe</span>
               <span className="user-username">@johndoe</span>
@@ -139,8 +180,12 @@ const Feed = ({ token }) => {
           </div>
 
           <div className="sidebar-footer">
-            <a href="#" className="theme-toggle">🌙 Switch to dark mode</a>
-            <a href="#" className="logout-link">Logout</a>
+            <a href="#" className="theme-toggle">
+              🌙 Switch to dark mode
+            </a>
+            <a href="#" className="logout-link">
+              Logout
+            </a>
           </div>
         </aside>
       </div>

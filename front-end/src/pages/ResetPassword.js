@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom'; // ✅ FIXED: Added Link import
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const ResetPassword = () => {
   const { token } = useParams();
   const [password, setPassword] = useState('');
@@ -12,7 +13,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     // Check if token is valid
-    fetch(`http://localhost:5000/api/auth/reset-password/${token}`, { 
+    fetch(`${API_URL}/api/auth/reset-password/${token}`, { 
       method: 'HEAD' 
     })
       .then(() => setValidToken(true))
