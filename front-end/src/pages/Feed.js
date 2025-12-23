@@ -9,15 +9,17 @@ const Feed = ({ token }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   // Fetch posts
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_URL}/api/posts`, {
-        headers: token
-          ? { Authorization: `Bearer ${token}` }
-          : undefined,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
       const data = await res.json();
       setPosts(data);
@@ -28,7 +30,7 @@ const Feed = ({ token }) => {
     }
   }, [token]);
 
-  // Load suggested users (static)
+  // Load suggested users (still static for now)
   useEffect(() => {
     setSuggestedUsers([
       {
@@ -56,6 +58,26 @@ const Feed = ({ token }) => {
     fetchPosts();
   }, [fetchPosts]);
 
+  // Search users
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    setSearchLoading(true);
+    try {
+      const res = await fetch(
+        `${API_URL}/api/search/users?q=${encodeURIComponent(q)}`
+      );
+      const data = await res.json();
+      setSearchResults(data);
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="feed-loading">
@@ -75,7 +97,12 @@ const Feed = ({ token }) => {
         <div className="nav-center">
           <div className="nav-icons">
             <button className="nav-icon active">🏠</button>
-            <button className="nav-icon">🔍</button>
+            <button
+              className="nav-icon"
+              onClick={() => setShowSearch((prev) => !prev)}
+            >
+              🔍
+            </button>
             <button className="nav-icon">➕</button>
             <button className="nav-icon">❤️</button>
             <button className="nav-icon">✈️</button>
@@ -90,12 +117,46 @@ const Feed = ({ token }) => {
         </div>
       </nav>
 
+      {/* Search panel (toggles when clicking 🔍) */}
+      {showSearch && (
+        <div className="search-panel">
+          <form onSubmit={handleSearch} className="search-form">
+            <input
+              className="search-input"
+              placeholder="Search users"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button type="submit" className="search-btn">
+              Search
+            </button>
+          </form>
+
+          {searchLoading && <p>Searching…</p>}
+          {!searchLoading && searchQuery && searchResults.length === 0 && (
+            <p>No users found</p>
+          )}
+
+          <ul className="search-results">
+            {searchResults.map((u) => (
+              <li key={u._id} className="search-result-item">
+                <img
+                  src={u.profilePic}
+                  alt={u.name}
+                  className="search-avatar"
+                />
+                <span>{u.name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="feed-container">
-        {/* Left Sidebar - Stories */}
+        {/* Left Sidebar - Stories + Suggested */}
         <div className="feed-sidebar-left">
           <Stories />
 
-          {/* Suggested Accounts */}
           <div className="suggested-accounts">
             <div className="suggested-header">
               <span>Suggested for you</span>
